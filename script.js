@@ -14,6 +14,7 @@
   let running = false;
   let spawnTimer = 0;
   let spawnInterval = 2000; // ms
+  let gameOver = false;
 
   const player = {
     x: 40,
@@ -22,6 +23,14 @@
     speed: 180,
     vx: 0,
     vy: 0,
+  };
+
+  // a single monster that chases the player
+  const monster = {
+    x: size.w - 80,
+    y: size.h - 80,
+    size: 36,
+    baseSpeed: 90, // base speed in px/s
   };
 
   let collectibles = [];
@@ -40,12 +49,20 @@
 
   function resetGame(){
     player.x = 40; player.y = 40; player.vx = 0; player.vy = 0;
+    monster.x = size.w - 80; monster.y = size.h - 80;
     collectibles = [];
     score = 0; scoreEl.textContent = `Score: ${score}`;
     spawnTimer = 0;
+    gameOver = false;
+    running = false;
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
   }
 
   function startGame(){
+    if(gameOver){
+      resetGame();
+    }
     if(running) return;
     running = true;
     startBtn.disabled = true; pauseBtn.disabled = false;
@@ -60,7 +77,12 @@
     cancelAnimationFrame(animationId);
   }
 
+  function checkAABB(a, b){
+    return a.x < b.x + b.size && a.x + a.size > b.x && a.y < b.y + b.size && a.y + a.size > b.y;
+  }
+
   function update(dt){
+    if(gameOver) return;
     const diff = parseFloat(difficultySelect.value) || 1;
     const spd = player.speed * diff;
 
@@ -88,7 +110,7 @@
     const interval = spawnInterval / diff; // higher diff -> faster spawn
     if(spawnTimer >= interval){ spawnTimer = 0; spawnCollectible(); }
 
-    // check collisions
+    // check collectibles collisions
     for(let i = collectibles.length - 1; i >= 0; i--){
       const c = collectibles[i];
       // simple rect-circle collision
@@ -100,6 +122,31 @@
         score += 1;
         scoreEl.textContent = `Score: ${score}`;
       }
+    }
+
+    // monster chases player
+    const mx = monster.x + monster.size/2;
+    const my = monster.y + monster.size/2;
+    const px = player.x + player.size/2;
+    const py = player.y + player.size/2;
+    let dx = px - mx, dy = py - my;
+    const dist = Math.hypot(dx, dy) || 1;
+    dx /= dist; dy /= dist;
+    const mspd = monster.baseSpeed * (0.9 + diff * 0.6); // scale with difficulty
+    monster.x += dx * mspd * dt;
+    monster.y += dy * mspd * dt;
+
+    // clamp monster
+    monster.x = Math.max(0, Math.min(size.w - monster.size, monster.x));
+    monster.y = Math.max(0, Math.min(size.h - monster.size, monster.y));
+
+    // check collision with player
+    if(checkAABB(player, monster)){
+      gameOver = true;
+      running = false;
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+      cancelAnimationFrame(animationId);
     }
   }
 
@@ -116,11 +163,30 @@
       ctx.strokeStyle = 'rgba(0,0,0,0.12)'; ctx.stroke();
     }
 
+    // draw monster
+    ctx.fillStyle = '#ff6b6b';
+    ctx.fillRect(monster.x, monster.y, monster.size, monster.size);
+    // monster eyes
+    ctx.fillStyle = '#111';
+    ctx.fillRect(monster.x + 8, monster.y + 8, 6, 6);
+    ctx.fillRect(monster.x + monster.size - 14, monster.y + 8, 6, 6);
+
     // HUD
     ctx.fillStyle = 'rgba(255,255,255,0.04)';
     ctx.fillRect(6,6,130,26);
     ctx.fillStyle = '#fff'; ctx.font = '14px sans-serif';
     ctx.fillText(`Score: ${score}`, 12, 24);
+
+    if(gameOver){
+      ctx.fillStyle = 'rgba(2,6,12,0.6)';
+      ctx.fillRect(0,0,size.w,size.h);
+      ctx.fillStyle = '#fff'; ctx.font = '36px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Game Over', size.w/2, size.h/2 - 10);
+      ctx.font = '18px sans-serif';
+      ctx.fillText(`Final Score: ${score}`, size.w/2, size.h/2 + 20);
+      ctx.textAlign = 'start';
+    }
   }
 
   function loop(ts){

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Buttons + Game Player</title>
+		<link rel="stylesheet" href="styles.css">
+	</head>
+	<body>
+		<main class="container">
+			<header>
+				<h1>Tiny Game Player</h1>
+				<p class="subtitle">Use the buttons or arrow/WASD keys to play.</p>
+			</header>
+
+			<section class="controls">
+				<div class="left">
+					<button id="startBtn">Start</button>
+					<button id="pauseBtn" disabled>Pause</button>
+					<button id="resetBtn">Reset</button>
+				</div>
+				<div class="right">
+					<label for="difficulty">Difficulty</label>
+					<select id="difficulty">
+						<option value="0.8">Easy</option>
+						<option value="1" selected>Normal</option>
+						<option value="1.4">Hard</option>
+						<option value="2">Insane</option>
+					</select>
+					<span id="score">Score: 0</span>
+				</div>
+			</section>
+
+			<section class="game-area">
+				<canvas id="game" width="800" height="480"></canvas>
+				<aside class="instructions">
+					<h3>How to play</h3>
+					<ul>
+						<li>Move the square with arrow keys or WASD.</li>
+						<li>Collect the yellow circles to earn points.</li>
+						<li>Change difficulty to adjust speed and spawn rate.</li>
+						<li>Use Start / Pause / Reset to control the game.</li>
+					</ul>
+				</aside>
+			</section>
+
+			<footer>
+				<small>Built with vanilla HTML/CSS/JS — open `index.html` in your browser.</small>
+			</footer>
+		</main>
+
+		<script src="script.js"></script>
+	</body>
+</html>

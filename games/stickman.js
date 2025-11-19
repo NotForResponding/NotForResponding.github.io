@@ -1,7 +1,9 @@
 (() => {
   const canvas = document.getElementById('stick');
   const ctx = canvas.getContext('2d');
-  const restartBtn = document.getElementById('restart');
+  const startBtn = document.getElementById('start');
+  const pauseBtn = document.getElementById('pause');
+  const resetBtn = document.getElementById('restart');
   const W = canvas.width, H = canvas.height;
 
   // player as small circle
@@ -12,7 +14,17 @@
   let time = 0; let running = true; let score = 0;
 
   function reset(){
-    player.x = 120; player.y = 320; player.vx = 0; player.vy = 0; anchor = null; time = 0; score = 0; running = true; draw();
+    player.x = 120; player.y = 320; player.vx = 0; player.vy = 0; anchor = null; time = 0; score = 0; running = false; draw();
+    startBtn.disabled = false; pauseBtn.disabled = true;
+  }
+
+  function start(){
+    if(running) return;
+    running = true; startBtn.disabled = true; pauseBtn.disabled = false; last = performance.now(); requestAnimationFrame(loop);
+  }
+
+  function pause(){
+    running = false; startBtn.disabled = false; pauseBtn.disabled = true;
   }
 
   function attach(x,y){
@@ -104,8 +116,10 @@
   });
   canvas.addEventListener('mouseup', detach);
   window.addEventListener('keydown', (e)=>{ if(e.code==='Space'){ player.vy -= 220; player.vx += 60; } });
-  restartBtn.addEventListener('click', reset);
+  startBtn.addEventListener('click', start);
+  pauseBtn.addEventListener('click', pause);
+  resetBtn.addEventListener('click', reset);
 
-  reset(); requestAnimationFrame(loop);
+  reset();
 
 })();

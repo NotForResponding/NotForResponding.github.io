@@ -1,7 +1,9 @@
 (() => {
   const canvas = document.getElementById('geo');
   const ctx = canvas.getContext('2d');
-  const retry = document.getElementById('retry');
+  const startBtn = document.getElementById('start');
+  const pauseBtn = document.getElementById('pause');
+  const resetBtn = document.getElementById('retry');
   const W = canvas.width, H = canvas.height;
 
   const player = { x: 80, y: H-60, w: 36, h:36, vy:0, jump: -420 };
@@ -9,7 +11,7 @@
   let obstacles = [];
   let speed = 320; // world speed
   let spawnTimer = 0; let spawnInterval = 1.2; // s
-  let last = performance.now(); let running = true; let score = 0;
+  let last = performance.now(); let running = false; let score = 0;
 
   function spawn(){
     const h = 28 + Math.random()*60;
@@ -17,8 +19,12 @@
   }
 
   function reset(){
-    player.y = H-60; player.vy = 0; obstacles = []; spawnTimer = 0; speed = 320; score = 0; running = true; last = performance.now();
+    player.y = H-60; player.vy = 0; obstacles = []; spawnTimer = 0; speed = 320; score = 0; running = false; last = performance.now();
+    startBtn.disabled = false; pauseBtn.disabled = true;
   }
+
+  function start(){ if(running) return; running = true; startBtn.disabled = true; pauseBtn.disabled = false; last = performance.now(); }
+  function pause(){ running = false; startBtn.disabled = false; pauseBtn.disabled = true; }
 
   function update(dt){
     if(!running) return;
@@ -69,8 +75,11 @@
   function loop(ts){ const dt = (ts - last)/1000; last = ts; update(dt); draw(); requestAnimationFrame(loop); }
 
   window.addEventListener('keydown', (e)=>{ if(e.code==='Space'){ if(player.y >= H-player.h-20-0.5){ player.vy = player.jump; } if(!running){ reset(); } } });
-  retry.addEventListener('click', reset);
+  startBtn.addEventListener('click', start);
+  pauseBtn.addEventListener('click', pause);
+  resetBtn.addEventListener('click', reset);
 
-  reset(); requestAnimationFrame(loop);
+  reset();
+  requestAnimationFrame(loop);
 
 })();

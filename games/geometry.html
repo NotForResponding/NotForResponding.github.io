@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Geometry Dash — Tiny Runner</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>body{display:flex;align-items:center;justify-content:center;padding:24px}canvas{border-radius:8px}.toolbar{margin-bottom:12px}.back{color:var(--muted);text-decoration:none;margin-right:12px}</style>
+  </head>
+  <body>
+    <div>
+      <div class="toolbar">
+        <a class="back" href="/">← Back</a>
+        <button id="retry">Retry</button>
+        <span style="margin-left:12px;color:var(--muted)">Space to jump. Avoid spikes.</span>
+      </div>
+      <canvas id="geo" width="900" height="300"></canvas>
+    </div>
+    <script src="/games/geometry.js"></script>
+  </body>
+</html>
